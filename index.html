@@ -17,9 +17,12 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#14171c" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#f4f5f7" media="(prefers-color-scheme: light)">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="テクトク集計">
+<!--
+  スタンドアロン起動用のメタタグ（apple-mobile-web-app-capable /
+  mobile-web-app-capable）は入れないこと。
+  入れるとホーム画面から別Cookie領域で起動し、iframe内のGoogle認証が
+  通らず 401 になる。通常のブラウザ内で開かせてCookieを共有させる。
+-->
 <title>テクトクライト集計</title>
 <style>
   html,body{margin:0; padding:0; height:100%; overflow:hidden; background:#f4f5f7;}
