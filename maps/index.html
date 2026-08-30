@@ -1,0 +1,48 @@
+<!doctype html>
+<!--
+  行きたい店マップ ラッパー
+
+  GASウェブアプリを直接開くとGoogleの警告バナーが強制表示されるため、
+  iframeに入れて回避する(テクトクと同じ)。
+
+  中身はiframeタグだけ。データはGAS側にあり公開範囲は「自分のみ」なので、
+  このページのURLを知られても中身は読まれない。
+
+  ★このアプリは現在地を使う(近い順に並べる)ので allow="geolocation" が要る。
+    付けないとiframeの中で位置情報が取れず、評価順のままになる。
+-->
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f6f7f9">
+<!--
+  スタンドアロン起動用のメタタグ(apple-mobile-web-app-capable /
+  mobile-web-app-capable)は入れないこと。
+  入れるとホーム画面から別Cookie領域で起動し、iframe内のGoogle認証が
+  通らず401になる。通常のブラウザ内で開かせてCookieを共有させる。
+-->
+<title>行きたい店マップ</title>
+<style>
+  html,body{margin:0; padding:0; height:100%; overflow:hidden; background:#f6f7f9;}
+  iframe{display:block; width:100%; height:100%; border:0;}
+</style>
+</head>
+<body>
+<iframe
+  id="app"
+  src="https://script.google.com/macros/s/AKfycbyR57qy0vu8VghIpphVucqc9hMz6uHnUfKDm1e8RCIA4_eMg_heMksq8scrs5BX2n7F4w/exec"
+  title="行きたい店マップ"
+  allow="geolocation"></iframe>
+<script>
+  // モバイルはアドレスバーの出入りで 100% が実際の表示高とズレるため、実測値を入れる
+  function fit(){
+    document.getElementById('app').style.height = window.innerHeight + 'px';
+  }
+  window.addEventListener('resize', fit);
+  window.addEventListener('orientationchange', fit);
+  fit();
+</script>
+</body>
+</html>
