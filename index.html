@@ -27,7 +27,7 @@
 <style>
   html,body{margin:0; padding:0; height:100%; overflow:hidden; background:#f4f5f7;}
   @media (prefers-color-scheme: dark){ html,body{background:#14171c;} }
-  iframe{display:block; width:100%; height:100%; border:0;}
+  iframe{display:block; width:100%; height:100%; height:100dvh; border:0;}
 </style>
 </head>
 <body>
@@ -38,12 +38,21 @@
   allow="clipboard-write"></iframe>
 <script>
   // モバイルはアドレスバーの出入りで 100% が実際の表示高とズレるため、実測値を入れる
+  // 2026-10-20: iPhoneで開いた直後に小さい高さを測ってしまい、下が切れたまま(リロードで直る)だった。
+  //   開いた後も何度か測り直し、タブ復帰・表示領域の変化・iframe読み込み完了でも合わせ直す
   function fit(){
-    document.getElementById('app').style.height = window.innerHeight + 'px';
+    var h = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
+    h = Math.max(h, window.innerHeight, document.documentElement.clientHeight || 0);
+    document.getElementById('app').style.height = Math.round(h) + 'px';
   }
   window.addEventListener('resize', fit);
-  window.addEventListener('orientationchange', fit);
+  window.addEventListener('orientationchange', function(){ setTimeout(fit, 300); });
+  window.addEventListener('pageshow', fit);
+  document.addEventListener('visibilitychange', function(){ if (!document.hidden) { fit(); setTimeout(fit, 400); } });
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', fit);
+  document.getElementById('app').addEventListener('load', fit);
   fit();
+  [250, 1000, 2500].forEach(function(ms){ setTimeout(fit, ms); });
 </script>
 </body>
 </html>
