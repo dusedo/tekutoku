@@ -36,13 +36,38 @@
   title="行きたい店マップ"
   allow="geolocation"></iframe>
 <script>
-  // モバイルはアドレスバーの出入りで 100% が実際の表示高とズレるため、実測値を入れる
+  // モバイルはアドレスバーの出入りで 100% が実際の表示高とズレるため、実測値を入れる(テクトクと同じ・2026-10-20)
+  //   開いた後も何度か測り直し、タブ復帰・表示領域の変化・iframe読み込み完了でも合わせ直す
   function fit(){
-    document.getElementById('app').style.height = window.innerHeight + 'px';
+    var h = (window.visualViewport && window.visualViewport.height * (window.visualViewport.scale || 1)) || window.innerHeight;
+    h = Math.max(h, window.innerHeight, document.documentElement.clientHeight || 0);
+    document.getElementById('app').style.height = Math.round(h) + 'px';
   }
-  window.addEventListener('resize', fit);
-  window.addEventListener('orientationchange', fit);
+  // ★2026-10-27 開いたらページ全体が拡大されたまま(右と上が見切れる)だった。Duo は開閉で画面幅が変わり、
+  //   その時の拡大率が残る。開いた時・画面幅が変わった時に拡大されていたら等倍に戻す
+  //   (viewport に一瞬 maximum-scale=1 を足すと Safari が拡大を解く。すぐ元に戻すのでピンチ拡大はそのまま使える)
+  var lastW = window.innerWidth;
+  function resetZoom(){
+    var vv = window.visualViewport;
+    if (!vv || vv.scale <= 1.01) return;
+    var m = document.querySelector('meta[name=viewport]');
+    var base = m.getAttribute('content');
+    m.setAttribute('content', base + ', maximum-scale=1');
+    setTimeout(function(){ m.setAttribute('content', base); fit(); }, 300);
+  }
+  function onResize(){
+    if (window.innerWidth !== lastW) { lastW = window.innerWidth; resetZoom(); }
+    fit();
+  }
+  window.addEventListener('resize', onResize);
+  window.addEventListener('orientationchange', function(){ setTimeout(function(){ resetZoom(); fit(); }, 300); });
+  window.addEventListener('pageshow', function(){ resetZoom(); fit(); });
+  document.addEventListener('visibilitychange', function(){ if (!document.hidden) { resetZoom(); fit(); setTimeout(fit, 400); } });
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', fit);
+  document.getElementById('app').addEventListener('load', fit);
+  resetZoom();
   fit();
+  [250, 1000, 2500].forEach(function(ms){ setTimeout(fit, ms); });
 </script>
 </body>
 </html>
